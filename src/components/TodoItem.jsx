@@ -4,6 +4,8 @@ import {
   CheckCircleIcon,
   CheckHoverIcon,
 } from 'assets/images';
+import clsx from 'clsx'
+import {useRef} from 'react'
 
 const StyledTaskItem = styled.div`
   min-height: 52px;

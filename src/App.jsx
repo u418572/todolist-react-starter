@@ -1,6 +1,6 @@
 import './App.scss';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { TodoPage, LoginPage, SignUpPage } from './pages';
+import { TodoPage, LoginPage, SignUpPage, HomePage } from './pages';
 
 function App() {
   return (
