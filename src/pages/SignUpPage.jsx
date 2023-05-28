@@ -8,8 +8,9 @@ import { ACLogoIcon } from 'assets/images';
 import { AuthInput } from 'components';
 import {useState, useEffect} from 'react'
 import { Link,useNavigate } from 'react-router-dom'
-import { register, checkPermission } from '../api/auth'
+// import { register, checkPermission } from '../api/auth'
 import Swal from 'sweetalert2'
+import {useAuth} from '../contexts/AuthContext'
 
 
 const SignUpPage = () => {
@@ -17,6 +18,8 @@ const SignUpPage = () => {
 const[password, setPassword] = useState('')
 const [email, setEmail] = useState('')
 const navigate = useNavigate()
+const {register, isAuthenticated} = useAuth()
+
  const handleClick = async () => {
       if (username.length === 0) {
         return;
@@ -28,14 +31,14 @@ const navigate = useNavigate()
         return;
       }
 
-    const { success, authToken } = await register({
+    const success = await register({
       username,
       email,
       password,
     });
 
     if (success) {
-      localStorage.setItem('authToken', authToken);
+      // localStorage.setItem('authToken', authToken);
       Swal.fire({
         position: 'top',
         title: '註冊成功！',
@@ -43,7 +46,7 @@ const navigate = useNavigate()
         icon: 'success',
         showConfirmButton: false,
       });
-      navigate('/todos')
+      // navigate('/todos')
       return;
     }
     Swal.fire({
@@ -56,19 +59,22 @@ const navigate = useNavigate()
   };
 
   useEffect(() => {
-    const checkTokenIsValid = async () => {
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken) {
-        return;
-      }
-      const result = await checkPermission(authToken);
-      if (result) {
-        navigate('/todos');
-      }
-    };
+    if(isAuthenticated){
+    navigate('/todos')
+   }
+    // const checkTokenIsValid = async () => {
+    //   const authToken = localStorage.getItem('authToken');
+    //   if (!authToken) {
+    //     return;
+    //   }
+    //   const result = await checkPermission(authToken);
+    //   if (result) {
+    //     navigate('/todos');
+    //   }
+    // };
 
-    checkTokenIsValid();
-  }, [navigate]);
+    // checkTokenIsValid();
+  }, [navigate, isAuthenticated]);
 
   return (
     <AuthContainer>
@@ -79,18 +85,18 @@ const navigate = useNavigate()
 
       <AuthInputContainer>
         <AuthInput 
-        label={'帳號'}
+        label='帳號'
         value={username}
-        placeholder={'請輸入帳號'}
+        placeholder='請輸入帳號'
         onChange={(nameInputValue) => setUsername(nameInputValue)}
         />
     </AuthInputContainer>
 
       <AuthInputContainer>
         <AuthInput 
-        label={'Email'}
+        label='Email'
           value={email}
-          placeholder={'請輸入 email'}
+          placeholder='請輸入 email'
           onChange={(emailInputValue) => setEmail(emailInputValue)}
         />
       </AuthInputContainer>

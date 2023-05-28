@@ -2,11 +2,15 @@ import { Footer, Header, TodoCollection, TodoInput } from 'components';
 import {useState,useEffect} from 'react'
 import {getTodos,createTodo,patchTodo, deleteTodo} from '../api/todos'
 import { useNavigate } from 'react-router-dom'
-import { checkPermission } from '../api/auth'
+// import { checkPermission } from '../api/auth'
+import { useAuth} from '../contexts/AuthContext'
+
 const TodoPage = () => {
   const [inputValue, setInputValue] = useState('')
   const [todos, setTodos] = useState([])
   const navigate = useNavigate()
+  const {isAuthenticated, currentMember} = useAuth()
+  const todoNums = todos.length
 
   const handleChange = (value) => {
     setInputValue(value)
@@ -63,7 +67,7 @@ const TodoPage = () => {
   }catch(error) {
     console.error(error)
   }
-    setInputValue('')
+    // setInputValue('')
    }
 
    const handleToggleDone = async(id) => {
@@ -150,24 +154,27 @@ getTodosAsync();
 }, []);
 
 useEffect(() => {
-    const checkTokenIsValid = async () => {
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken) {
-        navigate('/login');
-      }
-      const result = await checkPermission(authToken);
-      if (!result) {
-        navigate('/login');
-      }
-    };
+  if(!isAuthenticated) {
+    navigate('/login')
+  }
+    // const checkTokenIsValid = async () => {
+    //   const authToken = localStorage.getItem('authToken');
+    //   if (!authToken) {
+    //     navigate('/login');
+    //   }
+    //   const result = await checkPermission(authToken);
+    //   if (!result) {
+    //     navigate('/login');
+    //   }
+    // };
 
-    checkTokenIsValid();
-  }, [navigate]);
+    // checkTokenIsValid();
+  }, [navigate, isAuthenticated]);
    
   return (
     <div>
        TodoPage
-      <Header />
+      <Header username={currentMember?.name}/>
       <TodoInput inputValue={inputValue}
        onChange={handleChange} 
        onAddTodo={handleAddTodo}
@@ -178,8 +185,8 @@ useEffect(() => {
        onDelete={handleDelete}
        onToggleDone={handleToggleDone}
        onChangeMode={handleChangeMode} />
-      <Footer count={todos.length}/>
-      
+      {/* <Footer count={todos.length}/> */}
+      <Footer numOfTodos={todoNums}/>
     </div>
   );
 };

@@ -8,13 +8,15 @@ import { ACLogoIcon } from 'assets/images';
 import { AuthInput } from 'components';
 import { useState, useEffect } from 'react'
 import { Link,useNavigate } from 'react-router-dom'
-import { login, checkPermission } from '../api/auth'
+// import { login, checkPermission } from '../api/auth'
 import Swal from 'sweetalert2'
+import { useAuth} from '../contexts/AuthContext'
  
 const LoginPage = () => {
 const[userName, setUserName] = useState('')
 const[password, setPassword] = useState('')
 const navigate = useNavigate()
+const { login, isAuthenticated} = useAuth()
 
 const handleClick = async () => {
   if (userName.length === 0) {
@@ -24,12 +26,12 @@ const handleClick = async () => {
     return;
   }
  
-  const { success, authToken } = await login({
+  const success= await login({
     userName,
     password,
   });
   if (success) {
-    localStorage.setItem('authToken', authToken);
+    // localStorage.setItem('authToken', authToken);
     Swal.fire({
       title: '登入成功',
       icon: 'success',
@@ -37,7 +39,7 @@ const handleClick = async () => {
       timer: 1000,
       position: 'top'
     })
-    navigate('/todos')
+    // navigate('/todos')
     return;
   }
   Swal.fire({
@@ -50,19 +52,22 @@ const handleClick = async () => {
 };
 
 useEffect(() => {
-    const checkTokenIsValid = async () => {
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken) {
-        return;
-      }
-      const result = await checkPermission(authToken);
-      if (result) {
-        navigate('/todos');
-      }
-    };
+   if(isAuthenticated){
+    navigate('/todos')
+   }
+    // const checkTokenIsValid = async () => {
+    //   const authToken = localStorage.getItem('authToken');
+    //   if (!authToken) {
+    //     return;
+    //   }
+    //   const result = await checkPermission(authToken);
+    //   if (result) {
+    //     navigate('/todos');
+    //   }
+    // };
 
-    checkTokenIsValid();
-  }, [navigate]);
+    // checkTokenIsValid();
+  }, [navigate, isAuthenticated]);
 
   return (
     <AuthContainer>
@@ -73,18 +78,18 @@ useEffect(() => {
 
       <AuthInputContainer>
         <AuthInput 
-          label={'帳號'}
+          label='帳號'
           value={userName}
-          placeholder={'請輸入帳號'}
+          placeholder='請輸入帳號'
           onChange={(nameInputValue) => setUserName(nameInputValue)}/>
       </AuthInputContainer>
 
       <AuthInputContainer>
         <AuthInput
           type="password"
-          label={'密碼'}
+          label='密碼'
           value={password}
-          placeholder={'請輸入密碼'}
+          placeholder='請輸入密碼'
           onChange={(passwordInputValue) => setPassword(passwordInputValue)} />
       </AuthInputContainer>
       <AuthButton onClick={handleClick}>登入</AuthButton>
